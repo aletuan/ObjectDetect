@@ -7,6 +7,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -15,6 +16,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.LoaderCallbackInterface;
@@ -22,6 +24,11 @@ import org.opencv.android.OpenCVLoader;
 import org.opencv.android.Utils;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
+import org.opencv.core.MatOfDMatch;
+import org.opencv.core.MatOfKeyPoint;
+import org.opencv.features2d.DescriptorExtractor;
+import org.opencv.features2d.DescriptorMatcher;
+import org.opencv.features2d.FeatureDetector;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
@@ -43,11 +50,20 @@ public class MainActivity extends Activity {
     private TextView tvKeyPointsObject1;
     private TextView tvKeyPointsObject2;
     private TextView tvKeyPointsMatches;
+
+    private int keypointsObject1;
+    private int keypointsObject2;
+    private int keypointMatches;
+
     private TextView tvTime;
 
     private Mat src1;
     private Mat src2;
 
+    // Action Mode from HomeActivity
+    private static int ACTION_MODE = 0;
+
+    // Permission Flag
     private boolean isAllowed = false;
 
     private BaseLoaderCallback mOpenCVCallBack = new BaseLoaderCallback(this) {
@@ -75,19 +91,34 @@ public class MainActivity extends Activity {
 
         getActionBar().setDisplayHomeAsUpEnabled(true);
 
+        // Loading OpenCV
+        OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_10, this, mOpenCVCallBack);
+
         // Linking view component
+        tvTime = (TextView) findViewById(R.id.tvTime);
         ivImage1 = (ImageView)findViewById(R.id.ivImage1);
         tvKeyPointsObject1 = (TextView) findViewById(R.id.tvKeyPointsObject1);
         tvKeyPointsObject2 = (TextView) findViewById(R.id.tvKeyPointsObject2);
         tvKeyPointsMatches = (TextView) findViewById(R.id.tvKeyPointsMatches);
+
+        // TODO: Not clear the purpose of those variables
+        keypointsObject1 = keypointsObject2 = keypointMatches = -1;
+
+        Intent intent = getIntent();
+
+        if (intent != null && intent.hasExtra(HomeActivity.ACTION_MOE)) {
+            ACTION_MODE = intent.getIntExtra(HomeActivity.ACTION_MOE, 0);
+            Log.d(TAG, "ACTION_MODE: " + ACTION_MODE);
+        }
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_10, this,
-                mOpenCVCallBack);
-    }
+//    @Override
+//    protected void onResume() {
+//        Log.d(TAG, "onResume is called");
+//        super.onResume();
+//        OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_10, this,
+//                mOpenCVCallBack);
+//    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -148,7 +179,7 @@ public class MainActivity extends Activity {
                             final InputStream imageStream = getContentResolver().openInputStream(imageUri);
                             final Bitmap selectedImage = BitmapFactory.decodeStream(imageStream);
                             src1 = new Mat(selectedImage.getHeight(), selectedImage.getWidth(), CvType.CV_8UC4);
-                            ivImage1.setImageBitmap(selectedImage);
+                            //ivImage1.setImageBitmap(selectedImage);
                             Utils.bitmapToMat(selectedImage, src1);
                             src1Selected = true;
                         } catch (FileNotFoundException e) {
@@ -171,7 +202,95 @@ public class MainActivity extends Activity {
                     }
                     break;
             }
+            Toast.makeText(MainActivity.this, src1Selected + " " + src2Selected, Toast.LENGTH_SHORT).show();
+
+            if (src1Selected && src2Selected) {
+                Log.d(TAG, "Before execute");
+                new AsyncTask<Void, Void, Bitmap>() {
+
+                    private long startTime;
+                    private long endTime;
+
+                    @Override
+                    protected void onPreExecute() {
+                        Log.d(TAG, "onPreExecute begin");
+                        super.onPreExecute();
+                        startTime = System.currentTimeMillis();
+                    }
+
+                    @Override
+                    protected Bitmap doInBackground(Void... params) {
+                        Log.d(TAG, "doInBackground begin");
+                        //return executeTask();
+                        return null;
+                    }
+
+                    @Override
+                    protected void onPostExecute(Bitmap bitmap) {
+                        Log.d(TAG, "onPostExecute begin");
+                        super.onPostExecute(bitmap);
+                        endTime = System.currentTimeMillis();
+                        tvTime.setText("Time taken: " + (endTime-startTime) + "(ms)");
+                    }
+
+                }.execute();
+            }
         }
+    }
+
+    // Task will be execute in background
+    private Bitmap executeTask() {
+        Log.d(TAG, "executeTask begin");
+        FeatureDetector detector;
+        MatOfKeyPoint keyPoints1, keyPoints2;
+        DescriptorExtractor descriptorExtractor;
+        Mat descriptors1, descriptors2;
+        DescriptorMatcher descriptorMatcher;
+
+        MatOfDMatch matches  = new MatOfDMatch();
+
+        keyPoints1 = new MatOfKeyPoint();
+        keyPoints2 = new MatOfKeyPoint();
+
+        descriptors1 = new Mat();
+        descriptors2 = new Mat();
+
+        Log.d(TAG, "before switch ACTION_MODE " + ACTION_MODE);
+
+        switch (ACTION_MODE) {
+            case HomeActivity.MODE_SIFT:
+                Log.d(TAG, "MODE_SIFT");
+                detector = FeatureDetector.create(FeatureDetector.SIFT);
+                descriptorExtractor = DescriptorExtractor.create(DescriptorExtractor.SIFT);
+                descriptorMatcher = DescriptorMatcher.create(DescriptorMatcher.BRUTEFORCE_SL2);
+                break;
+            default:
+                Log.d(TAG, "default case");
+                detector = FeatureDetector.create(FeatureDetector.FAST);
+                descriptorExtractor = DescriptorExtractor.create(DescriptorExtractor.BRIEF);
+                descriptorMatcher = DescriptorMatcher.create(DescriptorMatcher.BRUTEFORCE_HAMMING);
+                break;
+        }
+
+        detector.detect(src2, keyPoints2);
+        detector.detect(src1, keyPoints1);
+
+        Log.d(TAG, CvType.typeToString(src1.type())+" "+CvType.typeToString(src2.type()));
+        Log.d(TAG, keyPoints1.toArray().length+" key points");
+        Log.d(TAG, keyPoints2.toArray().length+" key points");
+        Log.d(TAG, "Detect");
+
+        keypointsObject1 = keyPoints1.toArray().length;
+        keypointsObject2 = keyPoints2.toArray().length;
+
+        descriptorExtractor.compute(src1, keyPoints1, descriptors1);
+        descriptorExtractor.compute(src2, keyPoints2, descriptors2);
+
+        descriptorMatcher.match(descriptors1, descriptors2, matches);
+
+
+        return null;
+
     }
 
     @Override

@@ -17,6 +17,8 @@ public class HomeActivity extends Activity {
 
     public static final String TAG = "ObjectDetect::HomeActivity";
 
+    public static final String ACTION_MOE = "Action_Mode";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.d(TAG, "onCreate is called");
@@ -32,7 +34,7 @@ public class HomeActivity extends Activity {
             @Override
             public void onClick(View v) {
                 Intent i = new Intent(getApplicationContext(), MainActivity.class);
-                i.putExtra("ACTION_MODE", MODE_SIFT);
+                i.putExtra(ACTION_MOE, MODE_SIFT);
                 startActivity(i);
             }
         });
@@ -40,7 +42,7 @@ public class HomeActivity extends Activity {
             @Override
             public void onClick(View v) {
                 Intent i = new Intent(getApplicationContext(), MainActivity.class);
-                i.putExtra("ACTION_MODE", MODE_SURF);
+                i.putExtra(ACTION_MOE, MODE_SURF);
                 startActivity(i);
             }
         });
@@ -48,7 +50,7 @@ public class HomeActivity extends Activity {
             @Override
             public void onClick(View v) {
                 Intent i = new Intent(getApplicationContext(), MainActivity.class);
-                i.putExtra("ACTION_MODE", MODE_ORB);
+                i.putExtra(ACTION_MOE, MODE_ORB);
                 startActivity(i);
             }
         });
@@ -56,7 +58,7 @@ public class HomeActivity extends Activity {
             @Override
             public void onClick(View v) {
                 Intent i = new Intent(getApplicationContext(), MainActivity.class);
-                i.putExtra("ACTION_MODE", MODE_BRISK);
+                i.putExtra(ACTION_MOE, MODE_BRISK);
                 startActivity(i);
             }
         });
@@ -64,7 +66,7 @@ public class HomeActivity extends Activity {
             @Override
             public void onClick(View v) {
                 Intent i = new Intent(getApplicationContext(), MainActivity.class);
-                i.putExtra("ACTION_MODE", MODE_FREAK);
+                i.putExtra(ACTION_MOE, MODE_FREAK);
                 startActivity(i);
             }
         });

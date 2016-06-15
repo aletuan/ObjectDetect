@@ -146,9 +146,9 @@ public class MainActivity extends Activity {
                             final Uri imageUri = imageReturnedIntent.getData();
                             final InputStream imageStream = getContentResolver().openInputStream(imageUri);
                             final Bitmap selectedImage = BitmapFactory.decodeStream(imageStream);
-                            //src1 = new Mat(selectedImage.getHeight(), selectedImage.getWidth(), CvType.CV_8UC4);
+                            src1 = new Mat(selectedImage.getHeight(), selectedImage.getWidth(), CvType.CV_8UC4);
                             ivImage1.setImageBitmap(selectedImage);
-                            //Utils.bitmapToMat(selectedImage, src1);
+                            Utils.bitmapToMat(selectedImage, src1);
                             src1Selected = true;
                         } catch (FileNotFoundException e) {
                             e.printStackTrace();
@@ -161,8 +161,8 @@ public class MainActivity extends Activity {
                             final Uri imageUri = imageReturnedIntent.getData();
                             final InputStream imageStream = getContentResolver().openInputStream(imageUri);
                             final Bitmap selectedImage = BitmapFactory.decodeStream(imageStream);
-                            //src2 = new Mat(selectedImage.getHeight(), selectedImage.getWidth(), CvType.CV_8UC4);
-                            //Utils.bitmapToMat(selectedImage, src2);
+                            src2 = new Mat(selectedImage.getHeight(), selectedImage.getWidth(), CvType.CV_8UC4);
+                            Utils.bitmapToMat(selectedImage, src2);
                             src2Selected = true;
                         } catch (FileNotFoundException e) {
                             e.printStackTrace();

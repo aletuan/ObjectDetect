@@ -2,10 +2,12 @@ package com.packtpub.masteringopencvandroid.objectdetect;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -29,6 +31,8 @@ public class MainActivity extends Activity {
     Mat src1, src2;
 
     private ImageView ivImage1;
+
+    private boolean isAllowed = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,37 +71,54 @@ public class MainActivity extends Activity {
         super.onActivityResult(requestCode, resultCode, imageReturnedIntent);
 
         // TODO: Permission checking implementation
+        if (resultCode == RESULT_OK && (requestCode == SELECT_PHOTO_1 || requestCode == SELECT_PHOTO_2)
+                && imageReturnedIntent != null) {
+            int permissionCheck = ContextCompat.checkSelfPermission(this,
+                    android.Manifest.permission.READ_EXTERNAL_STORAGE);
 
-        switch (requestCode) {
-            case SELECT_PHOTO_1:
-                if (resultCode == RESULT_OK) {
-                    try {
-                        final Uri imageUri = imageReturnedIntent.getData();
-                        final InputStream imageStream = getContentResolver().openInputStream(imageUri);
-                        final Bitmap selectedImage = BitmapFactory.decodeStream(imageStream);
-                        //src1 = new Mat(selectedImage.getHeight(), selectedImage.getWidth(), CvType.CV_8UC4);
-                        ivImage1.setImageBitmap(selectedImage);
-                        Utils.bitmapToMat(selectedImage, src1);
-                        src1Selected = true;
-                    } catch (FileNotFoundException e) {
-                        e.printStackTrace();
+            if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
+                Log.d(TAG, "Permission is not allowed. Request permission");
+            } else {
+                Log.d(TAG, "Permission is granted");
+                isAllowed = true;
+            }
+        }
+
+        if (isAllowed) {
+
+            Log.d(TAG, "Handle the action of select image");
+
+            switch (requestCode) {
+                case SELECT_PHOTO_1:
+                    if (resultCode == RESULT_OK) {
+                        try {
+                            final Uri imageUri = imageReturnedIntent.getData();
+                            final InputStream imageStream = getContentResolver().openInputStream(imageUri);
+                            final Bitmap selectedImage = BitmapFactory.decodeStream(imageStream);
+                            //src1 = new Mat(selectedImage.getHeight(), selectedImage.getWidth(), CvType.CV_8UC4);
+                            ivImage1.setImageBitmap(selectedImage);
+                            Utils.bitmapToMat(selectedImage, src1);
+                            src1Selected = true;
+                        } catch (FileNotFoundException e) {
+                            e.printStackTrace();
+                        }
                     }
-                }
-                break;
-            case SELECT_PHOTO_2:
-                if (resultCode == RESULT_OK) {
-                    try {
-                        final Uri imageUri = imageReturnedIntent.getData();
-                        final InputStream imageStream = getContentResolver().openInputStream(imageUri);
-                        final Bitmap selectedImage = BitmapFactory.decodeStream(imageStream);
-                        //src2 = new Mat(selectedImage.getHeight(), selectedImage.getWidth(), CvType.CV_8UC4);
-                        Utils.bitmapToMat(selectedImage, src2);
-                        src2Selected = true;
-                    } catch (FileNotFoundException e) {
-                        e.printStackTrace();
+                    break;
+                case SELECT_PHOTO_2:
+                    if (resultCode == RESULT_OK) {
+                        try {
+                            final Uri imageUri = imageReturnedIntent.getData();
+                            final InputStream imageStream = getContentResolver().openInputStream(imageUri);
+                            final Bitmap selectedImage = BitmapFactory.decodeStream(imageStream);
+                            //src2 = new Mat(selectedImage.getHeight(), selectedImage.getWidth(), CvType.CV_8UC4);
+                            Utils.bitmapToMat(selectedImage, src2);
+                            src2Selected = true;
+                        } catch (FileNotFoundException e) {
+                            e.printStackTrace();
+                        }
                     }
-                }
-                break;
+                    break;
+            }
         }
     }
 

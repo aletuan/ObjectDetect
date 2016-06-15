@@ -58,6 +58,7 @@ public class MainActivity extends Activity {
                 case LoaderCallbackInterface.SUCCESS:
                     Log.d(TAG, "OpenCV is loaded successfully");
                     // Loading native library
+                    System.loadLibrary("nonfree");
                     break;
                 default:
                     super.onManagerConnected(status);

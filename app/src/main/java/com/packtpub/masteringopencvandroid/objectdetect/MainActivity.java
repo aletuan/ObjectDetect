@@ -16,6 +16,9 @@ import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import org.opencv.android.BaseLoaderCallback;
+import org.opencv.android.LoaderCallbackInterface;
+import org.opencv.android.OpenCVLoader;
 import org.opencv.android.Utils;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
@@ -47,6 +50,22 @@ public class MainActivity extends Activity {
 
     private boolean isAllowed = false;
 
+    private BaseLoaderCallback mOpenCVCallBack = new BaseLoaderCallback(this) {
+        @Override
+        public void onManagerConnected(int status) {
+            Log.d(TAG, "onManagedConnected is called");
+            switch (status) {
+                case LoaderCallbackInterface.SUCCESS:
+                    Log.d(TAG, "OpenCV is loaded successfully");
+                    // Loading native library
+                    break;
+                default:
+                    super.onManagerConnected(status);
+                    break;
+            }
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.d(TAG, "onCreate is called");
@@ -60,6 +79,13 @@ public class MainActivity extends Activity {
         tvKeyPointsObject1 = (TextView) findViewById(R.id.tvKeyPointsObject1);
         tvKeyPointsObject2 = (TextView) findViewById(R.id.tvKeyPointsObject2);
         tvKeyPointsMatches = (TextView) findViewById(R.id.tvKeyPointsMatches);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_10, this,
+                mOpenCVCallBack);
     }
 
     @Override

@@ -244,6 +244,12 @@ public class MainActivity extends Activity {
                         Log.d(TAG, "onPostExecute begin");
                         super.onPostExecute(bitmap);
                         endTime = System.currentTimeMillis();
+
+                        ivImage1.setImageBitmap(bitmap);
+                        tvKeyPointsObject1.setText("Object 1 : " + keypointsObject1);
+                        tvKeyPointsObject2.setText("Object 2 : " + keypointsObject2);
+                        tvKeyPointsMatches.setText("Key point Matches : " + keypointMatches);
+
                         tvTime.setText("Time taken: " + (endTime-startTime) + "(ms)");
                     }
 
@@ -347,13 +353,15 @@ public class MainActivity extends Activity {
 
     }
 
-    static Mat drawMatches(Mat img1, MatOfKeyPoint key1, Mat img2, MatOfKeyPoint key2, MatOfDMatch matches, boolean imageOnly){
-        //https://github.com/mustafaakin/image-matcher/tree/master/src/in/mustafaak/imagematcher
+    private static Mat drawMatches(Mat img1, MatOfKeyPoint key1, Mat img2, MatOfKeyPoint key2,
+                                   MatOfDMatch matches, boolean imageOnly){
         Mat out = new Mat();
         Mat im1 = new Mat();
         Mat im2 = new Mat();
+
         Imgproc.cvtColor(img1, im1, Imgproc.COLOR_BGR2RGB);
         Imgproc.cvtColor(img2, im2, Imgproc.COLOR_BGR2RGB);
+
         if ( imageOnly){
             MatOfDMatch emptyMatch = new MatOfDMatch();
             MatOfKeyPoint emptyKey1 = new MatOfKeyPoint();
@@ -362,10 +370,13 @@ public class MainActivity extends Activity {
         } else {
             Features2d.drawMatches(im1, key1, im2, key2, matches, out);
         }
-        Bitmap bmp = Bitmap.createBitmap(out.cols(), out.rows(), Bitmap.Config.ARGB_8888);
+
         Imgproc.cvtColor(out, out, Imgproc.COLOR_BGR2RGB);
+
         Core.putText(out, "FRAME", new Point(img1.width() / 2,30), Core.FONT_HERSHEY_PLAIN, 2, new Scalar(0,255,255),3);
+
         Core.putText(out, "MATCHED", new Point(img1.width() + img2.width() / 2,30), Core.FONT_HERSHEY_PLAIN, 2, new Scalar(255,0,0),3);
+
         return out;
     }
 

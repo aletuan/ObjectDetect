@@ -9,34 +9,43 @@
         android:layout_width="match_parent"
         android:orientation="vertical" >
 
+        <TextView
+            android:text="@string/select_mode"
+            android:layout_marginTop="20sp"
+            android:layout_marginBottom="20sp"
+            android:gravity="center"
+            android:textSize="24sp"
+            android:layout_width="match_parent"
+            android:layout_height="fill_parent" />
+
         <Button
             android:id="@+id/bSIFT"
-            android:layout_height="wrap_content"
-            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:layout_width="fill_parent"
             android:text="SIFT" />
 
         <Button
             android:id="@+id/bSURF"
-            android:layout_height="wrap_content"
-            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:layout_width="fill_parent"
             android:text="SURF" />
 
         <Button
             android:id="@+id/bORB"
-            android:layout_height="wrap_content"
-            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:layout_width="fill_parent"
             android:text="ORB" />
 
         <Button
             android:id="@+id/bBRISK"
-            android:layout_height="wrap_content"
-            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:layout_width="fill_parent"
             android:text="BRISK" />
 
         <Button
             android:id="@+id/bFREAK"
-            android:layout_height="wrap_content"
-            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:layout_width="fill_parent"
             android:text="FREAK" />
     </LinearLayout>
 </ScrollView>

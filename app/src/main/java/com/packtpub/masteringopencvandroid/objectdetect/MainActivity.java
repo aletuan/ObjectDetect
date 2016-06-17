@@ -64,7 +64,7 @@ public class MainActivity extends Activity {
 
     private int keypointsObject1;
     private int keypointsObject2;
-    private int keypointMatches;
+    private int keypointsMatches;
 
     // Maximum number of match to draw
     private final int MAX_MATCHES = 50;
@@ -73,6 +73,9 @@ public class MainActivity extends Activity {
 
     private Mat src1;
     private Mat src2;
+
+    private Bitmap selectedImage1;
+    private Bitmap selectedImage2;
 
     // Action Mode from HomeActivity
     private static int ACTION_MODE = 0;
@@ -116,7 +119,7 @@ public class MainActivity extends Activity {
         tvKeyPointsMatches = (TextView) findViewById(R.id.tvKeyPointsMatches);
 
         // TODO: Not clear the purpose of those variables
-        keypointsObject1 = keypointsObject2 = keypointMatches = -1;
+        keypointsObject1 = keypointsObject2 = keypointsMatches = -1;
 
         Intent intent = getIntent();
 
@@ -125,14 +128,6 @@ public class MainActivity extends Activity {
             Log.d(TAG, "ACTION_MODE: " + ACTION_MODE);
         }
     }
-
-//    @Override
-//    protected void onResume() {
-//        Log.d(TAG, "onResume is called");
-//        super.onResume();
-//        OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_10, this,
-//                mOpenCVCallBack);
-//    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -191,10 +186,10 @@ public class MainActivity extends Activity {
                         try {
                             final Uri imageUri = imageReturnedIntent.getData();
                             final InputStream imageStream = getContentResolver().openInputStream(imageUri);
-                            final Bitmap selectedImage = BitmapFactory.decodeStream(imageStream);
-                            src1 = new Mat(selectedImage.getHeight(), selectedImage.getWidth(), CvType.CV_8UC4);
+                            selectedImage1 = BitmapFactory.decodeStream(imageStream);
+                            src1 = new Mat(selectedImage1.getHeight(), selectedImage1.getWidth(), CvType.CV_8UC4);
                             //ivImage1.setImageBitmap(selectedImage);
-                            Utils.bitmapToMat(selectedImage, src1);
+                            Utils.bitmapToMat(selectedImage1, src1);
                             src1Selected = true;
                         } catch (FileNotFoundException e) {
                             e.printStackTrace();
@@ -206,9 +201,9 @@ public class MainActivity extends Activity {
                         try {
                             final Uri imageUri = imageReturnedIntent.getData();
                             final InputStream imageStream = getContentResolver().openInputStream(imageUri);
-                            final Bitmap selectedImage = BitmapFactory.decodeStream(imageStream);
-                            src2 = new Mat(selectedImage.getHeight(), selectedImage.getWidth(), CvType.CV_8UC4);
-                            Utils.bitmapToMat(selectedImage, src2);
+                            selectedImage2 = BitmapFactory.decodeStream(imageStream);
+                            src2 = new Mat(selectedImage2.getHeight(), selectedImage2.getWidth(), CvType.CV_8UC4);
+                            Utils.bitmapToMat(selectedImage2, src2);
                             src2Selected = true;
                         } catch (FileNotFoundException e) {
                             e.printStackTrace();
@@ -216,7 +211,15 @@ public class MainActivity extends Activity {
                     }
                     break;
             }
-            Toast.makeText(MainActivity.this, src1Selected + " " + src2Selected, Toast.LENGTH_SHORT).show();
+
+            // Check if both images are selected
+            if (!src1Selected || !src2Selected) {
+                Toast.makeText(MainActivity.this, "You need to select both images for compare",
+                        Toast.LENGTH_SHORT).show();
+            }
+
+            // TODO: Check image size and reduce if it needed
+            Log.d(TAG, "selectedImage1 " + (selectedImage1.getByteCount() / 1024) + " (bytes)");
 
             if (src1Selected && src2Selected) {
                 Log.d(TAG, "Before execute");
@@ -248,7 +251,7 @@ public class MainActivity extends Activity {
                         ivImage1.setImageBitmap(bitmap);
                         tvKeyPointsObject1.setText("Object 1 : " + keypointsObject1);
                         tvKeyPointsObject2.setText("Object 2 : " + keypointsObject2);
-                        tvKeyPointsMatches.setText("Key point Matches : " + keypointMatches);
+                        tvKeyPointsMatches.setText("Key point Matches : " + keypointsMatches);
 
                         tvTime.setText("Time taken: " + (endTime-startTime) + "(ms)");
                     }
@@ -316,9 +319,9 @@ public class MainActivity extends Activity {
         Log.d(TAG, "matching two descriptor");
         descriptorMatcher.match(descriptors1, descriptors2, matches);
 
-        keypointMatches = matches.toArray().length;
+        keypointsMatches = matches.toArray().length;
 
-        Log.d(TAG, "number of match " + keypointMatches);
+        Log.d(TAG, "number of match " + keypointsMatches);
 
         Collections.sort(matches.toList(), new Comparator<DMatch>() {
             @Override
@@ -373,9 +376,11 @@ public class MainActivity extends Activity {
 
         Imgproc.cvtColor(out, out, Imgproc.COLOR_BGR2RGB);
 
-        Core.putText(out, "FRAME", new Point(img1.width() / 2,30), Core.FONT_HERSHEY_PLAIN, 2, new Scalar(0,255,255),3);
+        Core.putText(out, "FRAME", new Point(img1.width() / 2,30),
+                Core.FONT_HERSHEY_PLAIN, 2, new Scalar(0,255,255),3);
 
-        Core.putText(out, "MATCHED", new Point(img1.width() + img2.width() / 2,30), Core.FONT_HERSHEY_PLAIN, 2, new Scalar(255,0,0),3);
+        Core.putText(out, "MATCHED", new Point(img1.width() + img2.width() / 2,30),
+                Core.FONT_HERSHEY_PLAIN, 2, new Scalar(255,0,0),3);
 
         return out;
     }
@@ -394,5 +399,6 @@ public class MainActivity extends Activity {
             }
         }
     }
+
 
 }

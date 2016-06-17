@@ -22,30 +22,30 @@
             android:id="@+id/bSIFT"
             android:layout_height="fill_parent"
             android:layout_width="fill_parent"
-            android:text="SIFT" />
+            android:text="Scale Invariant Feature Transform" />
 
         <Button
             android:id="@+id/bSURF"
             android:layout_height="fill_parent"
             android:layout_width="fill_parent"
-            android:text="SURF" />
+            android:text="Speeded Up Robust Features" />
 
         <Button
             android:id="@+id/bORB"
             android:layout_height="fill_parent"
             android:layout_width="fill_parent"
-            android:text="ORB" />
+            android:text="Oriented FAST and Rotated BRIEF" />
 
         <Button
             android:id="@+id/bBRISK"
             android:layout_height="fill_parent"
             android:layout_width="fill_parent"
-            android:text="BRISK" />
+            android:text="Binary Robust Invariant Scalable Keypoints" />
 
         <Button
             android:id="@+id/bFREAK"
             android:layout_height="fill_parent"
             android:layout_width="fill_parent"
-            android:text="FREAK" />
+            android:text="Fast Rentina Keypoint" />
     </LinearLayout>
 </ScrollView>
